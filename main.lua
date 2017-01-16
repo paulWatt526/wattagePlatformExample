@@ -11,7 +11,7 @@ local composer = require( "composer" )
 -- BEGIN (Insert your sample test starting here)
 -------------------------------------------------------------------------------
 display.setStatusBar(display.HiddenStatusBar)
-display.setDefault( "background", 0, 0, 0)
+display.setDefault( "background", 0.4, 0.4, 1)
 
 composer.gotoScene( "platformScene" )
 -------------------------------------------------------------------------------

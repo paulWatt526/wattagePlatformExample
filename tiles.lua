@@ -1,7 +1,7 @@
 --
 -- created with TexturePacker (http://www.codeandweb.com/texturepacker)
 --
--- $TexturePacker:SmartUpdate:1e7672c790f6848d8fc6fbd372018eec:1c0ecbe0be52494462efbe9de9ba3110:f4492607ea55a754477543692c89a688$
+-- $TexturePacker:SmartUpdate:fdc4b8953ea89c1165970570feb5b3e4:1c0ecbe0be52494462efbe9de9ba3110:f4492607ea55a754477543692c89a688$
 --
 -- local sheetInfo = require("mysheet")
 -- local myImageSheet = graphics.newImageSheet( "mysheet.png", sheetInfo:getSheet() )
@@ -24,7 +24,7 @@ SheetInfo.sheet =
         },
         {
             -- platformer_01
-            x=35,
+            x=37,
             y=1,
             width=32,
             height=32,
@@ -32,7 +32,7 @@ SheetInfo.sheet =
         },
         {
             -- platformer_02
-            x=69,
+            x=73,
             y=1,
             width=32,
             height=32,
@@ -40,144 +40,144 @@ SheetInfo.sheet =
         },
         {
             -- platformer_03
-            x=1,
-            y=35,
+            x=109,
+            y=1,
             width=32,
             height=32,
 
         },
         {
             -- platformer_04
-            x=35,
-            y=35,
+            x=145,
+            y=1,
             width=32,
             height=32,
 
         },
         {
             -- platformer_05
-            x=69,
-            y=35,
+            x=181,
+            y=1,
             width=32,
             height=32,
 
         },
         {
             -- platformer_06
-            x=1,
-            y=69,
+            x=217,
+            y=1,
             width=32,
             height=32,
 
         },
         {
             -- platformer_07
-            x=35,
-            y=69,
+            x=1,
+            y=37,
             width=32,
             height=32,
 
         },
         {
             -- platformer_08
-            x=69,
-            y=69,
+            x=37,
+            y=37,
             width=32,
             height=32,
 
         },
         {
             -- platformer_09
-            x=1,
-            y=103,
+            x=73,
+            y=37,
             width=32,
             height=32,
 
         },
         {
             -- platformer_10
-            x=35,
-            y=103,
+            x=109,
+            y=37,
             width=32,
             height=32,
 
         },
         {
             -- platformer_11
-            x=69,
-            y=103,
+            x=145,
+            y=37,
             width=32,
             height=32,
 
         },
         {
             -- platformer_12
-            x=1,
-            y=137,
+            x=181,
+            y=37,
             width=32,
             height=32,
 
         },
         {
             -- platformer_13
-            x=35,
-            y=137,
+            x=217,
+            y=37,
             width=32,
             height=32,
 
         },
         {
             -- platformer_14
-            x=69,
-            y=137,
+            x=1,
+            y=73,
             width=32,
             height=32,
 
         },
         {
             -- platformer_15
-            x=1,
-            y=171,
+            x=37,
+            y=73,
             width=32,
             height=32,
 
         },
         {
             -- platformer_16
-            x=35,
-            y=171,
+            x=73,
+            y=73,
             width=32,
             height=32,
 
         },
         {
             -- platformer_17
-            x=69,
-            y=171,
+            x=109,
+            y=73,
             width=32,
             height=32,
 
         },
         {
             -- platformer_18
-            x=1,
-            y=205,
+            x=145,
+            y=73,
             width=32,
             height=32,
 
         },
         {
             -- platformer_19
-            x=35,
-            y=205,
+            x=181,
+            y=73,
             width=32,
             height=32,
 
         },
         {
             -- platformer_20
-            x=69,
-            y=205,
+            x=217,
+            y=73,
             width=32,
             height=32,
 
@@ -185,87 +185,87 @@ SheetInfo.sheet =
         {
             -- platformer_21
             x=1,
-            y=239,
+            y=109,
             width=32,
             height=32,
 
         },
         {
             -- platformer_22
-            x=35,
-            y=239,
+            x=37,
+            y=109,
             width=32,
             height=32,
 
         },
         {
             -- platformer_23
-            x=69,
-            y=239,
+            x=73,
+            y=109,
             width=32,
             height=32,
 
         },
         {
             -- platformer_24
-            x=1,
-            y=273,
+            x=109,
+            y=109,
             width=32,
             height=32,
 
         },
         {
             -- platformer_25
-            x=35,
-            y=273,
+            x=145,
+            y=109,
             width=32,
             height=32,
 
         },
         {
             -- platformer_26
-            x=69,
-            y=273,
+            x=181,
+            y=109,
             width=32,
             height=32,
 
         },
         {
             -- platformer_27
-            x=1,
-            y=307,
+            x=217,
+            y=109,
             width=32,
             height=32,
 
         },
         {
             -- platformer_28
-            x=35,
-            y=307,
+            x=1,
+            y=145,
             width=32,
             height=32,
 
         },
         {
             -- platformer_29
-            x=69,
-            y=307,
+            x=37,
+            y=145,
             width=32,
             height=32,
 
         },
         {
             -- platformer_30
-            x=1,
-            y=341,
+            x=73,
+            y=145,
             width=32,
             height=32,
 
         },
     },
     
-    sheetContentWidth = 102,
-    sheetContentHeight = 374
+    sheetContentWidth = 256,
+    sheetContentHeight = 256
 }
 
 SheetInfo.frameIndex =

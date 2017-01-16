@@ -1,37 +1,19 @@
 local Composer = require( "composer" )
 local TileEngine = require "plugin.wattageTileEngine"
+local Utils = TileEngine.Utils
 
 local scene = Composer.newScene()
 
--- -----------------------------------------------------------------------------------
--- This table represents a simple environment.  Replace this with
--- the model needed for your application.
--- -----------------------------------------------------------------------------------
-local ENVIRONMENT = {
-    {2,2,2,2,2,1,1,1,1,1,2,2,2,2,2},
-    {2,2,2,2,2,1,0,0,0,1,2,2,2,2,2},
-    {2,2,2,2,2,1,0,0,0,1,2,2,2,2,2},
-    {2,2,2,2,2,1,0,0,0,1,2,2,2,2,2},
-    {2,2,2,2,2,1,0,0,0,1,2,2,2,2,2},
-    {1,1,1,1,1,1,0,0,0,1,1,1,1,1,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
-    {1,1,1,1,1,1,0,0,0,1,1,1,1,1,1},
-    {2,2,2,2,2,1,0,0,0,1,2,2,2,2,2},
-    {2,2,2,2,2,1,0,0,0,1,2,2,2,2,2},
-    {2,2,2,2,2,1,0,0,0,1,2,2,2,2,2},
-    {2,2,2,2,2,1,0,0,0,1,2,2,2,2,2},
-    {2,2,2,2,2,1,1,1,1,1,2,2,2,2,2},
-}
-
-local ROW_COUNT         = #ENVIRONMENT      -- Row count of the environment
-local COLUMN_COUNT      = #ENVIRONMENT[1]   -- Column count of the environment
+local CAMERA_VELOCITY   = 5 / 1000          -- Camera velocity in tiles per second
+local CAMERA_START_X    = 15                -- The start of the camera movement range
+local CAMERA_END_X      = 60                -- The end of the camera movement range
 
 local tileEngine                            -- Reference to the tile engine
 local lightingModel                         -- Reference to the lighting model
 local tileEngineViewControl                 -- Reference to the UI view control
 local lastTime                              -- Used to track how much time passes between frames
+local rowCount                              -- Row count of the environment
+local columnCount                           -- Column count of the environment
 
 -- -----------------------------------------------------------------------------------
 -- This will load in the example sprite sheet.  Replace this with the sprite
@@ -47,42 +29,13 @@ local spriteSheet = graphics.newImageSheet("tiles.png", spriteSheetInfo:getSheet
 -- -----------------------------------------------------------------------------------
 local spriteResolver = {}
 spriteResolver.resolveForKey = function(key)
-    local frameIndex = spriteSheetInfo:getFrameIndex(key)
-    local frame = spriteSheetInfo.sheet.frames[frameIndex]
-    local displayObject = display.newImageRect(spriteSheet, frameIndex, frame.width, frame.height)
+    local frame = spriteSheetInfo.sheet.frames[key]
+    local displayObject = display.newImageRect(spriteSheet, key, frame.width, frame.height)
     return TileEngine.SpriteInfo.new({
         imageRect = displayObject,
         width = frame.width,
         height = frame.height
     })
-end
-
--- -----------------------------------------------------------------------------------
--- A simple helper function to add floor tiles to a layer.
--- -----------------------------------------------------------------------------------
-local function addFloorToLayer(layer)
-    for row=1,ROW_COUNT do
-        for col=1,COLUMN_COUNT do
-            local value = ENVIRONMENT[row][col]
-            if value == 0 then
-                layer.updateTile(
-                    row,
-                    col,
-                    TileEngine.Tile.new({
-                        resourceKey="tiles_0"
-                    })
-                )
-            elseif value == 1 then
-                layer.updateTile(
-                    row,
-                    col,
-                    TileEngine.Tile.new({
-                        resourceKey="tiles_1"
-                    })
-                )
-            end
-        end
-    end
 end
 
 -- -----------------------------------------------------------------------------------
@@ -93,12 +46,7 @@ end
 -- That is why nil is checked for in this example callback.
 -- -----------------------------------------------------------------------------------
 local function isTileTransparent(column, row)
-    local rowTable = ENVIRONMENT[row]
-    if rowTable == nil then
-        return true
-    end
-    local value = rowTable[column]
-    return value == nil or value == 0
+    return true
 end
 
 -- -----------------------------------------------------------------------------------
@@ -113,6 +61,38 @@ end
 -- -----------------------------------------------------------------------------------
 local function allTilesAffectedByAmbient(column, row)
     return true
+end
+
+-- -----------------------------------------------------------------------------------
+-- This function is a convenience function to retrieve a layer from a Tiled file.
+-- -----------------------------------------------------------------------------------
+local function getLayerByName(name, levelDefinition)
+    for i=1,#levelDefinition.layers do
+        local curLayer = levelDefinition.layers[i]
+        if curLayer.name == name then
+            return curLayer
+        end
+    end
+    return nil
+end
+
+-- -----------------------------------------------------------------------------------
+-- This function is a convenience function to load tiles into a layer.
+-- -----------------------------------------------------------------------------------
+local function loadTilesIntoLayer(layer, layerData)
+    for row=1, rowCount do
+        for col=1, columnCount do
+            local tileType = layerData.data[(row - 1) * columnCount + col]
+            if tileType ~= 0 then
+                layer.updateTile(
+                    row,
+                    col,
+                    TileEngine.Tile.new({
+                        resourceKey = tileType
+                    }))
+            end
+        end
+    end
 end
 
 -- -----------------------------------------------------------------------------------
@@ -132,6 +112,17 @@ local function onFrame(event)
         local deltaTime = curTime - lastTime
         lastTime = curTime
 
+        -- Update camera location
+        local newX = camera.getX() + deltaTime * CAMERA_VELOCITY
+        if newX > CAMERA_END_X then
+            newX = newX - (newX - CAMERA_END_X)
+            CAMERA_VELOCITY = -1 * CAMERA_VELOCITY
+        elseif newX < CAMERA_START_X then
+            newX = newX + (CAMERA_START_X - newX)
+            CAMERA_VELOCITY = -1 * CAMERA_VELOCITY
+        end
+        camera.setLocation(newX, camera.getY())
+
         -- Update the lighting model passing the amount of time that has passed since
         -- the last frame.
         lightingModel.update(deltaTime)
@@ -140,7 +131,7 @@ local function onFrame(event)
         lastTime = event.time
 
         -- This is the initial position of the camera
-        camera.setLocation(7.5, 7.5)
+        camera.setLocation(CAMERA_START_X, 10)
 
         -- Since a time delta cannot be calculated on the first frame, 1 is passed
         -- in here as a placeholder.
@@ -188,35 +179,80 @@ function scene:create( event )
         compensateLightingForViewingPosition = false
     })
 
+    -- Load the Tiled JSON file
+    local levelDefinition = Utils.loadJsonFile("map.json")
+    rowCount = levelDefinition.height
+    columnCount = levelDefinition.width
+
     -- Instantiate the module.
     local module = TileEngine.Module.new({
         name="moduleMain",
-        rows=ROW_COUNT,
-        columns=COLUMN_COUNT,
+        rows= rowCount,
+        columns= columnCount,
         lightingModel=lightingModel,
         losModel=TileEngine.LineOfSightModel.ALL_VISIBLE
     })
 
     -- Next, layers will be added to the Module...
 
-    -- Create a TileLayer for the floor.
-    local floorLayer = TileEngine.TileLayer.new({
-        rows = ROW_COUNT,
-        columns = COLUMN_COUNT
+    -- Create a TileLayer for the clouds.
+    local cloudLayer = TileEngine.TileLayer.new({
+        rows = rowCount,
+        columns = columnCount
     })
+    local cloudData = getLayerByName("Clouds", levelDefinition)
+    loadTilesIntoLayer(cloudLayer, cloudData)
 
-    -- Use the helper function to populate the layer.
-    addFloorToLayer(floorLayer)
+    -- Create a TileLayer for the leaves.
+    local leavesLayer = TileEngine.TileLayer.new({
+        rows = rowCount,
+        columns = columnCount
+    })
+    local leavesData = getLayerByName("Leaves", levelDefinition)
+    loadTilesIntoLayer(leavesLayer, leavesData)
+
+    -- Create a TileLayer for the trees.
+    local treeLayer = TileEngine.TileLayer.new({
+        rows = rowCount,
+        columns = columnCount
+    })
+    local treeData = getLayerByName("Trees", levelDefinition)
+    loadTilesIntoLayer(treeLayer, treeData)
+
+    -- Create a TileLayer for the platform 1.
+    local platform1Layer = TileEngine.TileLayer.new({
+        rows = rowCount,
+        columns = columnCount
+    })
+    local platform1Data = getLayerByName("Platform1", levelDefinition)
+    loadTilesIntoLayer(platform1Layer, platform1Data)
+
+    -- Create a TileLayer for the platform 2.
+    local platform2Layer = TileEngine.TileLayer.new({
+        rows = rowCount,
+        columns = columnCount
+    })
+    local platform2Data = getLayerByName("Platform2", levelDefinition)
+    loadTilesIntoLayer(platform2Layer, platform2Data)
 
     -- It is necessary to reset dirty tile tracking after the layer has been
     -- fully initialized.  Not doing so will result in unnecessary processing
     -- when the scene is first rendered which may result in an unnecessary
     -- delay (especially for larger scenes).
-    floorLayer.resetDirtyTileCollection()
+    cloudLayer.resetDirtyTileCollection()
+    leavesLayer.resetDirtyTileCollection()
+    treeLayer.resetDirtyTileCollection()
+    platform1Layer.resetDirtyTileCollection()
+    platform2Layer.resetDirtyTileCollection()
 
-    -- Add the layer to the module at index 1 (indexes start at 1, not 0).  Set
-    -- the scaling delta to zero.
-    module.insertLayerAtIndex(floorLayer, 1, 0)
+    -- Add the layers to the module starting at index 1 (indexes start at 1, not 0).
+    -- Set the scaling deltas to zero and stagger the X coefficients to create
+    -- parallax.
+    module.insertLayerAtIndex(cloudLayer, 1, 0, 0.6)
+    module.insertLayerAtIndex(leavesLayer, 2, 0, 0.7)
+    module.insertLayerAtIndex(treeLayer, 3, 0, 0.8)
+    module.insertLayerAtIndex(platform1Layer, 4, 0, 0.9)
+    module.insertLayerAtIndex(platform2Layer, 5, 0, 1)
 
     -- Add the module to the engine.
     tileEngine.addModule({module = module})
